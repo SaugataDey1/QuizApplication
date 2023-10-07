@@ -64,9 +64,9 @@ public class QuestionController
      @Operation(summary = "Add Questions", description = "Adds a new question for User")
      @ApiResponse(responseCode = "201", description = "Created")
      @ApiResponse(responseCode = "400", description = "Bad Request")
-    public ResponseEntity<String> addQuestion(@RequestBody question question)
-    {
-        questionService.addQuestion(question);
-        return new ResponseEntity<>("success", HttpStatus.CREATED);
-    }
+     public ResponseEntity<String> addQuestion(@RequestBody question question)
+     {
+         questionService.addQuestion(question);
+         return new ResponseEntity<>("success", HttpStatus.CREATED);
+     }
 }
