@@ -1,5 +1,6 @@
 package com.telusko.quizApp.Service;
 
+import com.telusko.quizApp.Exception.ResourceNotFoundException;
 import com.telusko.quizApp.dao.QuestionDao;
 import com.telusko.quizApp.entity.question;
 import org.junit.jupiter.api.Assertions;
@@ -72,5 +73,21 @@ public class QuestionServiceTest
         List<question> responses = questions;
         when(questionRepository.findByCategory(category)).thenReturn(questions);
         Assertions.assertEquals(responses, questionService.getQuestionsByCategory(category));
+    }
+
+    @Test
+    @DisplayName("Testing Get Question By category: Exception Scenario")
+    void testGetQuestionByCategoryException()
+    {
+        when(questionRepository.findByCategory(category)).thenReturn(List.of());
+        Assertions.assertThrows(ResourceNotFoundException.class,()->questionService.getQuestionsByCategory(category));
+    }
+
+    @Test
+    @DisplayName("Testing Get All Questions- Exception scenario")
+    void testGetAllQuestionsExceptionScenario()
+    {
+        when(questionRepository.findAll()).thenReturn(List.of());
+        Assertions.assertThrows(ResourceNotFoundException.class,()->questionService.getAllQuestions());
     }
 }

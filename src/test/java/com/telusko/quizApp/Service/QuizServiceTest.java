@@ -1,5 +1,6 @@
 package com.telusko.quizApp.Service;
 
+import com.telusko.quizApp.Exception.ResourceNotFoundException;
 import com.telusko.quizApp.dao.QuestionDao;
 import com.telusko.quizApp.dao.QuizDao;
 import com.telusko.quizApp.entity.QuestionWrapper;
@@ -18,10 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("Test for QuizService")
@@ -68,7 +66,10 @@ public class QuizServiceTest
 
         Assertions.assertEquals(response,quizService.createQuiz("Programming", 1,"quiz1"));
 
-        Mockito.verify(quizRepository).save(quiz);
+        // If the Return Type of the method is void then we have to use -> Mockito.verify(), because Assertions.assertEquals() will show Compile Time Error.
+        Mockito.verify(quizRepository).save(quiz);  // verifies that -> QuizRepository save(quiz) -> this method runs or not.
+
+
 
     }
 
@@ -99,6 +100,53 @@ public class QuizServiceTest
         ResponseEntity<Integer> responseForUser= quizService.calculateResult(1, responses);
        // Assertions.assertTrue(Objects.requireNonNull(responseForUser.getBody()).contains(1));
         Assertions.assertNotNull(responseForUser);
+    }
 
+    @Test
+    @DisplayName("Testing Get Questions for User : Exception Scenario")
+    void testGetQuestionsForUserException()
+    {
+        Mockito.when(quizRepository.findById(1)).thenReturn(Optional.empty());
+        Assertions.assertThrows(ResourceNotFoundException.class, ()->quizService.getQuizQuestions(1));
+    }
+
+    @Test
+    @DisplayName("Testing Calculate Result : No Quiz Found Exception Scenario")
+    void testCalculateResultNoQuizFound()
+    {
+        Mockito.when(quizRepository.findById(1)).thenReturn(Optional.empty());
+        List<Response> responses= new ArrayList<>();
+        Assertions.assertThrows(ResourceNotFoundException.class, ()->quizService.calculateResult(1,responses));
+    }
+
+    @Test
+    @DisplayName("Testing Calculate Result: Empty Response Exception Scenario")
+    void testCalculateResultEmptyResponse()
+    {
+        quiz= new Quiz(1,"quiz3",quizQuestions);
+        Mockito.when(quizRepository.findById(1)).thenReturn(Optional.ofNullable(quiz));
+        Response response= new Response(1,null);
+        List<Response> responses= Collections.singletonList(response);
+        Assertions.assertThrows(ResourceNotFoundException.class, ()->quizService.calculateResult(1,responses));
+    }
+
+    @Test
+    @DisplayName("Create Quiz : Exception Scenario")
+    void testCreateQuizException()
+    {
+        quizQuestions= new ArrayList<>();
+        Mockito.when(questionRepository.findRandomQuestionByCategory("Music",1)).thenReturn(quizQuestions);
+        Assertions.assertThrows(ResourceNotFoundException.class, ()->quizService.createQuiz("Music",1,"quiz2"));
+    }
+
+    @Test
+    @DisplayName("Quiz with No Questions: Exception Scenario")
+    void testQuizWithNoQuestionsException()
+    {
+        quizQuestions= new ArrayList<>();
+        quiz= new Quiz(1,"emptyQuiz",quizQuestions);
+
+        Mockito.when(quizRepository.findById(1)).thenReturn(Optional.ofNullable(quiz));
+        Assertions.assertThrows(ResourceNotFoundException.class,()->quizService.getQuizQuestions(1));
     }
 }

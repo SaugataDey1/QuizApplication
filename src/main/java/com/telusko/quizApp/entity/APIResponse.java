@@ -3,13 +3,14 @@ package com.telusko.quizApp.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Response
+public class APIResponse
 {
-    private Integer id;
-    private String response;
+    private HttpStatus errorCode;
+
+    private String errorMessage;
 }
